@@ -4,7 +4,7 @@ os.environ['QT_QPA_PLATFORM'] = 'offscreen'
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
-from PySide6.QtCore import QObject, Signal
+from PySide6.QtCore import QObject, Signal, QSettings
 from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QApplication
 from obsbot_studio import ui
@@ -32,6 +32,8 @@ class Preview(QObject):
 
 app = QApplication.instance() or QApplication([])
 with tempfile.TemporaryDirectory() as directory:
+    QSettings.setPath(QSettings.NativeFormat, QSettings.UserScope, directory)
+    assert Path(QSettings("obsbot-studio", "portrait-tuning").fileName()).is_relative_to(directory)
     with patch.object(ui, 'Preview', Preview), patch.object(ui.MainWindow, 'request'), patch.object(ui.MainWindow, '_discover_audio'), patch.object(ui, 'EffectsPanel', lambda: EffectsPanel(settings_path=Path(directory)/'effects.json')):
         w = ui.MainWindow()
     w.command.disconnect()
@@ -50,13 +52,18 @@ with tempfile.TemporaryDirectory() as directory:
     assert not calls and not w.busy
     w.effects = EffectSettings()
     w.preview.running = True
-    w.request('tune_exposure')
+    target_args = []
+    w.command.connect(lambda method, args: target_args.append(args))
+    w.face_brightness_target.setValue(167)
+    w.tune_button.click()
     assert w.busy and w.preview.stops == 1 and not calls
     assert not w.effects_panel.isEnabled()
     w._start_preview()  # Busy prevents reopening the device.
     w.preview.running = False
     w._preview_stopped()
     assert calls == ['tune_exposure'] and w.busy
+    assert target_args == [[167]]
+    assert QSettings('obsbot-studio', 'portrait-tuning').value('target', type=int) == 167
     state = dict(w.snapshot, tuning_undo=True, tuning_report='Exposure tuned.')
     w._finished('tune_exposure', state, '')
     assert not w.busy and w.undo_tuning_button.isEnabled() and w.tune_button.isEnabled()
@@ -87,7 +94,8 @@ worker.camera = FakeCamera()
 results = []
 worker.finished.connect(lambda method, result, error: results.append((method, result, error)))
 with patch.object(ui.analyzer, 'run', return_value=Result('Unchanged.')) as run:
-    worker.execute('tune_exposure', [])
+    worker.execute('tune_exposure', [167])
+    assert run.call_args.kwargs['options'].target == 167
     assert run.call_count == 1 and run.call_args.args == (worker.camera,)
 assert results[-1][1]['tuning_report'] == 'Unchanged.' and not results[-1][2]
 print('PASS analyzer UI recording/effects gates, preview handoff, worker dispatch, Undo state, pending effects on snapshot, thread shutdown')

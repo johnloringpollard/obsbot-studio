@@ -84,11 +84,17 @@ Open **More → Open teleprompter** for a separate scrolling script window. Its 
 
 ## Tune exposure for the current lighting
 
-In **Image**, use **Tune exposure** with your face visible and still. The analyzer briefly stops preview and samples the raw camera image. It checks a settled burst, tries a small exposure-compensation change only for a clearly dark or clipped face, and retains it only if the measurements improve. A healthy image is left unchanged. It requires automatic exposure, an awake camera, and software effects turned off.
+Start preview to wake the camera, turn software Effects off, then open **Image → Tune exposure**. Keep one face still in view while the tuner samples the raw camera. It needs automatic exposure and can take up to a minute.
 
-**Undo tuning** restores the exposure compensation saved before the latest accepted tuning. The saved value survives app restarts. Tuning does not alter white balance, color gains, HDR, focus, framing or image style. It runs once; run it again when the room lighting changes. The camera's existing auto-exposure continues to operate afterward. This is an exposure helper, not full color calibration or a guarantee of matching another camera.
+**Face brightness target** defaults to 155 on a 0–255 scale. Raise it for a brighter portrait or lower it for a darker look. This is your visual preference, not a universal skin-tone standard. The tuner aims within seven levels of the target while protecting face highlights.
 
-See [picture quality](docs/PICTURE-QUALITY.md) for the Studio Display comparison and remaining control limitations.
+The tuner tests small exposure-compensation changes first. If those stop helping or reach the allowed adjustment range, it tries a small hardware-brightness change. It measures every candidate, restores rejected changes, and keeps the best measured result. It limits each run to six trials, compensation changes of three steps from the starting value, and brightness changes of six units. It may stop short of your target if further changes are unsafe or ineffective.
+
+**Undo previous tuning** restores the controls saved before the latest accepted tuning. Undo survives app restarts and supports earlier app versions. Failed runs restore all controls they touched. White balance, color gains, HDR, focus and framing remain unchanged.
+
+The tuner runs once; run it again when room lighting changes. The camera's existing auto-exposure continues afterward. Hardware adjustments affect the Tiny 3 when selected in other apps. This is exposure tuning, not calibrated color matching or a guarantee of outperforming another camera.
+
+See [picture quality](docs/PICTURE-QUALITY.md) for comparisons and verification limits.
 
 ## Privacy and third-party components
 

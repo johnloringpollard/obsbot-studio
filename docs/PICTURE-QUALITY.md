@@ -14,9 +14,9 @@ Tiny 3 had HDR and face-priority exposure/focus enabled. Its white balance was m
 
 ## What the analyzer can change
 
-The analyzer checks face exposure in a settled burst. It adjusts only exposure compensation, tests the result, and restores the starting value if no improvement is demonstrated. It does not calculate a desired skin color, infer a white point from skin, or continuously retune the camera. Color calibration needs a known neutral reference under the same light.
+The analyzer checks face exposure in a settled burst. It tests exposure compensation first, then small hardware-brightness changes if compensation stops helping. It retains measured improvements and restores rejected changes. It does not calculate a desired skin color, infer a white point from skin, or continuously retune the camera. Color calibration needs a known neutral reference under the same light.
 
-A broad acceptable exposure band avoids trying to force every face to the same brightness. The check can still make mistakes. Use Undo or the manual exposure slider if its result does not suit you. A healthy image can produce a no-change result even when you prefer a brighter look.
+The adjustable target defaults to 155 with a tolerance of seven grayscale levels. This is an explicit aesthetic preference, not an inferred ideal for every skin tone. The check can still make mistakes. Use Undo or the manual exposure slider if its result does not suit you. A healthy image can produce a no-change result even when you prefer a brighter look.
 
 ## Controls still unavailable
 
@@ -26,6 +26,14 @@ For calls, hardware adjustments affect the physical camera output. Software blur
 
 ## Verification limits
 
-The October 26 live checks confirmed asleep/moving/unsettled guards, a healthy-face no-change result, and manual compensation readback/restoration. The healthy scene did not trigger an accepted automatic adjustment. Accepted improvement, failed trials, repeated tuning, persistent Undo and restoration failures are covered by deterministic tests with fake camera controls. These tests are not a claim that the analyzer improves every real room or face.
+The October 26 live checks confirmed asleep/moving/unsettled guards, a healthy-face no-change result, and manual compensation readback/restoration. The initial severe-exposure-only version did not trigger an accepted automatic adjustment. Accepted improvement, failed trials, repeated tuning, persistent Undo and restoration failures are covered by deterministic tests with fake camera controls. These tests are not a claim that the analyzer improves every real room or face.
 
-Each capture has a six-second timeout and tuning checks a 30-second analysis deadline. Existing camera-command timeouts and emergency restoration can take additional time. The worker keeps the interface responsive while it completes restoration.
+The portrait tuner uses an eight-second capture timeout and checks a 60-second analysis deadline. Existing camera-command timeouts and emergency restoration can take additional time. The worker keeps the interface responsive while it completes restoration.
+
+## Portrait tuner follow-up
+
+The user's second pair of screenshots had face-region medians of 177 for Studio Display and 137 for Tiny 3. About 31% of the measured Studio Display face crop had at least one color channel at or above 250; none did in the Tiny 3 crop. The default target of 155 aims for a brighter face with more highlight headroom than that reference. These are screenshot measurements, not a calibrated or simultaneous sensor comparison.
+
+The new live run measured 137 → 148 toward target 155, with 0% measured face clipping before and after. Exposure compensation remained 9; hardware brightness changed 47 → 51. White balance and red/blue gains stayed unchanged. An earlier run detected face movement after making trials and restored the starting controls. Undo was separately applied and verified, then the accepted result was reapplied with Undo retained.
+
+The test demonstrates a useful exposure improvement in this scene. It does not establish that the Tiny 3 is objectively better than Studio Display, or that every lighting setup reaches its requested target. The older conservative-tuner evidence above describes version 0.1.0; the iterative portrait tuner is version 0.2.0.

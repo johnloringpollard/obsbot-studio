@@ -6,7 +6,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from PySide6.QtCore import QObject, Qt, QThread, QTimer, QProcess, Signal, Slot, QStandardPaths
+from PySide6.QtCore import QObject, Qt, QThread, QTimer, QProcess, Signal, Slot, QStandardPaths, QSettings
 from PySide6.QtGui import QImage, QPixmap, QIcon
 from PySide6.QtWidgets import (
     QApplication, QCheckBox, QComboBox, QFileDialog, QFrame, QHBoxLayout,
@@ -80,7 +80,7 @@ class CameraWorker(QObject):
                 result = self.camera.snapshot()
             elif self.camera is not None:
                 if method in ("tune_exposure", "undo_tuning"):
-                    report = analyzer.run(self.camera, progress=self.progress.emit) if method == "tune_exposure" else analyzer.undo(self.camera)
+                    report = analyzer.run(self.camera, options=analyzer.TuneOptions(args[0] if args else 155), progress=self.progress.emit) if method == "tune_exposure" else analyzer.undo(self.camera)
                     result = self.camera.snapshot()
                     result["tuning_report"] = report.message
                 else:
@@ -427,7 +427,7 @@ class MainWindow(QMainWindow):
         self._enabled()
         self._status("Reading camera…" if method in ("discover", "connect", "snapshot") else "Updating camera…")
         if method in ("tune_exposure", "undo_tuning"):
-            self._tuning_progress("Measuring exposure. Hold still…" if method == "tune_exposure" else "Restoring original exposure…")
+            self._tuning_progress("Measuring exposure. Hold still…" if method == "tune_exposure" else "Restoring previous tuning…")
         sleeping = method == "apply" and bool(args) and args[0] == "sleep" and bool(args[1])
         if sleeping:
             self.preview_wanted = False
@@ -502,6 +502,7 @@ class MainWindow(QMainWindow):
         self.effects_panel.setEnabled(not recording and not self.busy)
         if hasattr(self, "tune_button"):
             self.tune_button.setEnabled(ready and not self.effects.active)
+            self.face_brightness_target.setEnabled(ready)
             self.undo_tuning_button.setEnabled(ready and self.snapshot.get("tuning_undo", False))
         self.devices.setEnabled(not self.busy and not recording)
         self.refresh.setEnabled(not self.busy and not recording)
@@ -524,14 +525,23 @@ class MainWindow(QMainWindow):
                 item = page.takeAt(0)
                 if item.widget():
                     item.widget().deleteLater()
-        explanation = QLabel("Tune exposure once for the current lighting. Keep one face still in view, enable auto exposure, and turn off Effects. Only exposure compensation can change; other camera settings stay as they are.")
+        explanation = QLabel("Set your preferred face brightness, then hold still while tuning. Allow up to a minute. Requires auto exposure and Effects off. Adjustments apply to the camera in other apps.")
         explanation.setWordWrap(True)
         self.pages["Image"].addWidget(explanation)
+        settings = QSettings("obsbot-studio", "portrait-tuning")
+        self.pages["Image"].addWidget(QLabel("Face brightness target"))
+        self.face_brightness_target = QSpinBox()
+        self.face_brightness_target.setObjectName("face_brightness_target")
+        self.face_brightness_target.setRange(100, 180)
+        self.face_brightness_target.setValue(settings.value("target", 155, type=int))
+        self.face_brightness_target.setToolTip("Your preferred face brightness on a 0–255 scale. Default 155; this is an aesthetic preference, not a skin-tone standard.")
+        self.face_brightness_target.valueChanged.connect(lambda value: settings.setValue("target", value))
+        self.pages["Image"].addWidget(self.face_brightness_target)
         self.tune_button = QPushButton("Tune exposure")
         self.tune_button.setObjectName("tune_exposure")
-        self.tune_button.clicked.connect(lambda: self.request("tune_exposure"))
+        self.tune_button.clicked.connect(lambda: self.request("tune_exposure", [self.face_brightness_target.value()]))
         self.pages["Image"].addWidget(self.tune_button)
-        self.undo_tuning_button = QPushButton("Undo tuning")
+        self.undo_tuning_button = QPushButton("Undo previous tuning")
         self.undo_tuning_button.setObjectName("undo_tuning")
         self.undo_tuning_button.clicked.connect(lambda: self.request("undo_tuning"))
         self.pages["Image"].addWidget(self.undo_tuning_button)

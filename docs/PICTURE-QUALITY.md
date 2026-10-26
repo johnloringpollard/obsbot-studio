@@ -37,3 +37,5 @@ The user's second pair of screenshots had face-region medians of 177 for Studio 
 The new live run measured 137 → 148 toward target 155, with 0% measured face clipping before and after. Exposure compensation remained 9; hardware brightness changed 47 → 51. White balance and red/blue gains stayed unchanged. An earlier run detected face movement after making trials and restored the starting controls. Undo was separately applied and verified, then the accepted result was reapplied with Undo retained.
 
 The test demonstrates a useful exposure improvement in this scene. It does not establish that the Tiny 3 is objectively better than Studio Display, or that every lighting setup reaches its requested target. The older conservative-tuner evidence above describes version 0.1.0; the iterative portrait tuner is version 0.2.0.
+
+A second live run using preferred target 165 raised measured face brightness 146 → 160 with 0% measured clipping. Compensation changed 9 → 10, corresponding to +1/3 EV, and hardware brightness 51 → 53. Color gains and white balance stayed unchanged. The accepted result was kept with Undo available.

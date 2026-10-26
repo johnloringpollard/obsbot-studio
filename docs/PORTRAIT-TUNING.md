@@ -10,7 +10,7 @@
 - [x] Implement target preference, bounded iterative exposure and brightness fallback, scoped multi-control Undo.
 - [x] Test on current camera and verify readback, accepted image change, restoration, and failure behavior.
 - [x] Independent fresh-context review and affected checks. Fixed QSettings test isolation; direct recheck confirms real preferences unchanged.
-- [ ] Update documentation/screenshot, publish follow-up and verify remote contents.
+- [x] Update documentation/screenshot, publish follow-up and verify main commit via GitHub API.
 
 Reference measurement: Studio Display screenshot face median 177, Tiny 3 screenshot 137. About 31% of the measured Studio Display face crop had a color channel at or above 250, compared with none in the Tiny 3 crop. A default target of 155 aims to lift the face while preserving highlight headroom. It is an adjustable aesthetic preference, not a universally correct skin-tone value. Neither screenshot establishes calibrated color or a controlled sensor comparison.
 

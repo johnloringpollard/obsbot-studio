@@ -1,0 +1,2 @@
+av==19.0.2
+# OpenCV and NumPy come from the system Python packages on this Omarchy machine.

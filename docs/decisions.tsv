@@ -1,0 +1,9 @@
+ts	phase	decision	why	evidence	result
+2026-10-24T15:40:00-04:00	frame	Build separate obsbot-studio project and preserve existing app	Reversible local development without modifying Buzzsprout or user's existing camera app	docs/PLAN.md	in progress
+2026-10-24T16:14:45.056178-04:00	architecture	Native Qt with one serialized camera worker and one FFmpeg capture owner	Avoid network control endpoint and competing camera captures	obsbot_studio/ui.py; obsbot_studio/preview.py	implemented
+2026-10-24T16:14:45.056221-04:00	hardware	Disable auto-sleep writes and preset restoration	USB disconnect coincided with timer SET despite SDK-matching packet	evidence/hardware-roundtrip.json; docs/RESEARCH.md	disabled in backend even in probe mode
+2026-10-24T16:14:45.056234-04:00	quality	Force MJPEG for requested HD/4K modes	Device YUYV max640x480	evidence/formats-before.txt; official specs	live preview and recordings tested
+2026-10-24T16:14:45.056243-04:00	capabilities	Show unavailable functions with reasons	No guessed commands or cosmetic switches	docs/RESEARCH.md	partial parity stated
+2026-10-24T16:21:39.043769-04:00	review	Fix shutdown cancellation, stepped slider input, disconnect state and preview wake readback	Independent review reproduced these UI failures	tests/test_shutdown_pending.py; tests/test_slider_steps.py	targeted reviewer recheck passed
+2026-10-24T16:21:39.043811-04:00	recording	Use common-clock input sync and preserve source offset	Independent timestamp resets can shift audio	tests/test_audio_sync.py	400ms offset measured0.4001s
+2026-10-24T16:21:39.043826-04:00	hardware	Verify person tracking after user ready confirmation	Single mode needs an acquired human target	evidence/person-tracking.json	Single2 and framing1/2/0 readbacks passed; settings restored

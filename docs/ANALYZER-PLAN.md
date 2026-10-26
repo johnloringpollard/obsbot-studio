@@ -11,6 +11,6 @@
 - [x] Verify unit/UI tests and real camera guards/no-op; temporary exposure readback and restoration passed. Accepted automatic improvement remains covered by synthetic tests, not demonstrated on the live healthy scene.
 - [x] Independent fresh-context review found dropped debounced Effects edits during camera operations. Fixed by flushing before busy state; regression and targeted independent recheck passed.
 - [x] Package generic installation, deliberate screenshot, dependency/model attribution, and privacy audit.
-- [ ] Publish new GitHub repository and verify its contents. PR step n/a: new standalone repository explicitly requested.
+- [x] Publish new public GitHub repository and verify main commit and screenshot via GitHub API. PR step n/a: new standalone repository explicitly requested.
 
 The reference screenshot alone cannot establish a matched lighting comparison. Raw camera capture format, ISP processing, focus, exposure and software effects are separate variables. Do not promise aesthetic equivalence or represent synthetic tests as hardware verification.
